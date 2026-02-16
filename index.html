@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>The Fairy's Trail: Eternal Book</title>
+    <title>The Fairy's Trail: The Choice</title>
     <style>
         body {
             margin: 0;
@@ -86,6 +86,16 @@
             from { opacity: 0; transform: translate(-50%, -40%); }
             to { opacity: 1; transform: translate(-50%, -50%); }
         }
+        
+        /* Button Container */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+            align-items: center;
+        }
+
         button.action-btn {
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             border: none;
@@ -94,18 +104,40 @@
             font-family: "Verdana", sans-serif;
             font-weight: bold;
             font-size: 16px;
-            margin-top: 30px;
             cursor: pointer;
             border-radius: 30px;
             box-shadow: 0 10px 30px rgba(142, 197, 252, 0.3);
             transition: transform 0.2s;
+            width: 100%;
+            max-width: 280px;
         }
         button.action-btn:active { transform: scale(0.96); }
+
+        /* Secondary Button (Reset) */
+        button.reset-btn {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ddd;
+            padding: 12px 24px;
+            font-family: "Verdana", sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 280px;
+        }
+        button.reset-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+            color: #fff;
+        }
+
         .quote-author {
             color: #ffd700;
             font-style: italic;
             font-size: 16px;
-            margin-top: 10px;
+            margin-top: 15px;
             display: block;
         }
     </style>
@@ -125,8 +157,11 @@
             <div id="overlayIcon" style="font-size: 70px; margin-bottom: 20px;">🌱</div>
             <p id="overlayText" style="font-size: 20px; line-height: 1.6; color: #f0f0f0; font-family: 'Times New Roman', serif;">Description.</p>
             <span id="overlayAuthor" class="quote-author"></span>
-            <button class="action-btn" onclick="resumeGame()">Absorb Wisdom</button>
-            <div id="restartText" style="margin-top:15px; font-size:12px; color:#666; display:none;">(Restarting at Current Cycle)</div>
+            
+            <div class="btn-group">
+                <button id="btnPrimary" class="action-btn">Absorb Wisdom</button>
+                <button id="btnSecondary" class="reset-btn" style="display:none;">Return to Roots (Cycle 1)</button>
+            </div>
         </div>
     </div>
 
@@ -147,18 +182,19 @@
         "#dfe6e9"  // Crown
     ];
 
-    // --- MASSIVE WISDOM LIBRARY ---
+    // --- WISDOM LIBRARY ---
     const LORE_DB = [
         // LEVEL 1: GROUNDING & EARTH
         {level: 1, icon: "🐢", text: "Treat the earth well: it was not given to you by your parents, it was loaned to you by your children.", author: "Native American Proverb"},
         {level: 1, icon: "🍂", text: "Walk as if you are kissing the Earth with your feet.", author: "Thich Nhat Hanh"},
         {level: 1, icon: "🪨", text: "The earth has music for those who listen.", author: "Shakespeare"},
         {level: 1, icon: "🌱", text: "To forget how to dig the earth and to tend the soil is to forget ourselves.", author: "Gandhi"},
+        {level: 1, icon: "🌲", text: "Adopt the pace of nature: her secret is patience.", author: "Ralph Waldo Emerson"},
         
         // LEVEL 2: WATER & FLOW
-        {level: 2, icon: "🌊", text: "Life is a series of natural and spontaneous changes. Don't resist them; that only creates sorrow.", author: "Lao Tzu"},
+        {level: 2, icon: "🌊", text: "Life is a series of natural and spontaneous changes. Don't resist them.", author: "Lao Tzu"},
         {level: 2, icon: "💧", text: "You can't cross the sea merely by standing and staring at the water.", author: "Rabindranath Tagore"},
-        {level: 2, icon: "🌑", text: "The moon does not fight. It attacks no one. It does not worry. It does not try to crush others. It keeps to its course.", author: "Deng Ming-Dao"},
+        {level: 2, icon: "🌑", text: "The moon does not fight. It attacks no one. It does not worry. It keeps to its course.", author: "Deng Ming-Dao"},
         
         // LEVEL 3: FIRE & WILL
         {level: 3, icon: "🔥", text: "Set your life on fire. Seek those who fan your flames.", author: "Rumi"},
@@ -205,10 +241,6 @@
     let breathTimer = 0;
     let geometryAngle = 0;
     
-    // --- SAVED STATE ---
-    // We don't save to localStorage to avoid getting stuck in a crash loop,
-    // but we persist level in memory for the session.
-
     window.onload = function() {
         canvas = document.getElementById('gameCanvas');
         ctx = canvas.getContext('2d');
@@ -221,6 +253,10 @@
         
         canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
         canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+        
+        // Button Logic
+        document.getElementById('btnPrimary').addEventListener('click', handlePrimaryBtn);
+        document.getElementById('btnSecondary').addEventListener('click', handleSecondaryBtn);
         
         renderLoop(); 
     };
@@ -238,7 +274,7 @@
         if(e) e.preventDefault();
         document.getElementById('startButton').style.display = 'none';
         isGameRunning = true;
-        resetGame(1); // Start at Level 1
+        resetGame(1);
         gameLoop();
     }
 
@@ -247,9 +283,8 @@
         direction = {x: 1, y: 0};
         nextDirection = {x: 1, y: 0};
         
-        // RESTORE LEVEL LOGIC
         level = startLevel || 1;
-        score = (level - 1) * POINTS_PER_LEVEL; // Give points so they don't de-level
+        score = (level - 1) * POINTS_PER_LEVEL;
         
         growPending = 0;
         obstacles = [];
@@ -262,7 +297,6 @@
         spawnFood();
         updateUI();
         document.getElementById('overlay').style.display = 'none';
-        document.getElementById('restartText').style.display = 'none';
     }
 
     // --- LOOP ---
@@ -314,7 +348,7 @@
     }
 
     function handleKey(e) {
-        if (isPaused && e.code === "Space") resumeGame();
+        if (isPaused && e.code === "Space") handlePrimaryBtn();
         switch(e.code) {
             case "ArrowUp": if(direction.y===0) nextDirection = {x:0, y:-1}; break;
             case "ArrowDown": if(direction.y===0) nextDirection = {x:0, y:1}; break;
@@ -328,7 +362,6 @@
         direction = nextDirection;
         let head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
 
-        // Check if collision with Wall or Self or Obstacle
         if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE ||
             isCollision(head, snake) || isCollision(head, obstacles)) {
             gameOver();
@@ -344,7 +377,6 @@
             else snake.pop();
         }
         
-        // Rainbow Dust
         let hue = Math.random() * 360;
         particles.push({
             x: head.x * cellSize + cellSize/2, 
@@ -365,7 +397,6 @@
     }
 
     function handleFood() {
-        // Shockwave
         let fx = food.x * cellSize + cellSize/2;
         let fy = food.y * cellSize + cellSize/2;
         ripples.push({x: fx, y: fy, size: 0, alpha: 1.0});
@@ -379,7 +410,6 @@
             growPending += 1;
         }
         
-        // Level Up Logic
         if (score > level * POINTS_PER_LEVEL) {
             level++;
             generateObstacles();
@@ -395,13 +425,9 @@
             valid = !isCollision(food, snake) && !isCollision(food, obstacles);
         }
         
-        // 70% chance for Wisdom
         if (Math.random() < 0.7) {
-            // Get quotes for current level OR general quotes (level 0)
             let possibleLore = LORE_DB.filter(l => l.level === level || l.level === 0);
-            // Fallback if we run out of level specific quotes
             if(possibleLore.length === 0) possibleLore = LORE_DB;
-            
             food.data = possibleLore[Math.floor(Math.random() * possibleLore.length)];
         } else {
             food.data = null;
@@ -410,15 +436,12 @@
 
     function generateObstacles() {
         obstacles = [];
-        // Gentle Curve: Lvl 1=0, Lvl 2=1, Lvl 3=2...
         let count = Math.max(0, (level - 1) * 2);
-        
         for(let i=0; i<count; i++) {
             let valid = false;
             let obs;
             while(!valid) {
                 obs = {x: Math.floor(Math.random()*GRID_SIZE), y: Math.floor(Math.random()*GRID_SIZE)};
-                // Safe Zone around center
                 let dist = Math.abs(obs.x - GRID_SIZE/2) + Math.abs(obs.y - GRID_SIZE/2);
                 valid = !isCollision(obs, snake) && dist > 6;
             }
@@ -426,22 +449,23 @@
         }
     }
 
+    // --- MENU SYSTEM ---
+
     function gameOver() {
         isGameOver = true;
-        // CHECKPOINT LOGIC
-        let restartLevel = level;
+        isPaused = true;
         
         document.getElementById('overlayIcon').innerText = "🌀";
-        document.getElementById('overlayText').innerText = "The cycle turns, but your wisdom remains.\nYou will restart at the beginning of this Cycle.";
+        document.getElementById('overlayText').innerText = "The cycle turns, but your wisdom remains.";
         document.getElementById('overlayAuthor').innerText = "";
         
-        let btn = document.getElementById('overlay').querySelector('button');
-        btn.innerText = "Reincarnate (Cycle " + restartLevel + ")";
-        btn.onclick = function() {
-             resetGame(restartLevel); // Restart at current level
-        };
+        // Show Buttons
+        document.getElementById('btnPrimary').innerText = "Reincarnate (Cycle " + level + ")";
         
-        document.getElementById('restartText').style.display = 'block';
+        let btnSec = document.getElementById('btnSecondary');
+        btnSec.style.display = 'block';
+        btnSec.innerText = "Return to Roots (Cycle 1)";
+        
         document.getElementById('overlay').style.display = 'block';
     }
 
@@ -451,20 +475,23 @@
         document.getElementById('overlayText').innerText = data.text;
         document.getElementById('overlayAuthor').innerText = "- " + data.author;
         
-        let btn = document.getElementById('overlay').querySelector('button');
-        btn.innerText = "Continue Journey";
-        btn.onclick = resumeGame;
+        document.getElementById('btnPrimary').innerText = "Absorb Wisdom";
+        document.getElementById('btnSecondary').style.display = 'none';
         
-        document.getElementById('restartText').style.display = 'none';
         document.getElementById('overlay').style.display = 'block';
     }
 
-    function resumeGame() {
-        if (isGameOver) resetGame(level); // Should be handled by specific button but just in case
-        else {
-            isPaused = false;
+    function handlePrimaryBtn() {
+        if (isGameOver) {
+            resetGame(level); // Restart at current level
+        } else {
+            isPaused = false; // Just unpause (Wisdom collected)
             document.getElementById('overlay').style.display = 'none';
         }
+    }
+
+    function handleSecondaryBtn() {
+        resetGame(1); // Hard reset
     }
 
     function updateUI() {
@@ -485,7 +512,6 @@
         renderBackground();
         renderGeometry();
 
-        // RIPPLES
         for (let i = ripples.length - 1; i >= 0; i--) {
             let r = ripples[i];
             r.size += 2;
@@ -500,7 +526,6 @@
             }
         }
 
-        // OBSTACLES
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.font = (cellSize * 0.9) + "px Serif";
@@ -508,19 +533,16 @@
         for (let obs of obstacles) {
             let cx = obs.x * cellSize + cellSize/2;
             let cy = obs.y * cellSize + cellSize/2;
-            // Soft Pulse
             ctx.shadowBlur = 10 + Math.sin(breathTimer*3)*5;
             ctx.shadowColor = "#ff7675";
             ctx.fillText("🪨", cx, cy);
             ctx.shadowBlur = 0; 
         }
 
-        // FOOD
         if(food) {
             let cx = food.x * cellSize + cellSize/2;
             let cy = food.y * cellSize + cellSize/2;
             let scale = 1.1 + Math.sin(breathTimer * 3) * 0.15;
-            
             ctx.font = (cellSize * scale) + "px Serif";
             ctx.shadowBlur = 25;
             ctx.shadowColor = "#fff";
@@ -528,12 +550,10 @@
             ctx.shadowBlur = 0;
         }
 
-        // PARTICLES
         for (let i = particles.length - 1; i >= 0; i--) {
             let p = particles[i];
             p.life -= 0.015;
-            p.x += p.vx; 
-            p.y += p.vy;
+            p.x += p.vx; p.y += p.vy;
             if (p.life <= 0) particles.splice(i, 1);
             else {
                 ctx.globalAlpha = p.life;
@@ -545,7 +565,6 @@
             }
         }
 
-        // SNAKE
         for (let i = 0; i < snake.length; i++) {
             let s = snake[i];
             let px = s.x * cellSize + cellSize/2;
@@ -560,7 +579,7 @@
             ctx.fill();
             ctx.shadowBlur = 0;
             
-            if (i===0) { // Wings
+            if (i===0) {
                 ctx.save();
                 ctx.translate(px, py);
                 let flap = Math.sin(breathTimer * 8) * 6; 
@@ -586,14 +605,11 @@
         let cx = canvas.width / 2;
         let cy = canvas.height / 2;
         let r = canvas.width * 0.45;
-        
         ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
         ctx.lineWidth = 1;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(geometryAngle);
-        
-        // Flower of Life
         for (let i = 0; i < 6; i++) {
             ctx.beginPath();
             ctx.arc(Math.cos(i) * r/2, Math.sin(i) * r/2, r/2, 0, Math.PI*2);
