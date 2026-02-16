@@ -3,96 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Fairy's Trail: Sacred Garden</title>
+    <title>The Fairy's Trail: Eternal Rhythm</title>
     <style>
-        body {
-            margin: 0;
-            background-color: #050510;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            color: #ffebcd;
-            font-family: "Georgia", serif;
-            overflow: hidden;
-            touch-action: none;
-        }
-        #gameContainer {
-            position: relative;
-            box-shadow: 0 0 100px rgba(100, 200, 255, 0.15);
-        }
-        canvas {
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-            border-radius: 12px;
-            display: block;
-        }
-        #uiLayer {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            pointer-events: none;
-            text-shadow: 0 2px 4px rgba(0,0,0,1);
-            z-index: 10;
-        }
-        #startButton {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 25px 50px;
-            font-size: 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            z-index: 100;
-        }
-        #overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(15, 15, 25, 0.98);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            display: none;
-            width: 85%;
-            max-width: 500px;
-            box-shadow: 0 30px 80px rgba(0,0,0,1);
-            z-index: 50;
-        }
+        body { margin: 0; background-color: #050510; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #ffebcd; font-family: "Georgia", serif; overflow: hidden; touch-action: none; }
+        #gameContainer { position: relative; box-shadow: 0 0 100px rgba(100, 200, 255, 0.1); border-radius: 12px; }
+        canvas { background: radial-gradient(circle at center, #0f0f1a 0%, #000 100%); border-radius: 12px; display: block; }
+        #uiLayer { position: absolute; top: 20px; left: 20px; pointer-events: none; text-shadow: 0 2px 4px black; z-index: 10; }
+        #startButton { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 20px 40px; font-size: 22px; border-radius: 50px; cursor: pointer; backdrop-filter: blur(10px); z-index: 100; }
+        #overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 20, 0.98); border: 1px solid rgba(255, 215, 0, 0.2); padding: 40px; border-radius: 20px; text-align: center; display: none; width: 85%; max-width: 500px; box-shadow: 0 30px 80px black; z-index: 50; }
         .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; align-items: center; }
-        button.action-btn {
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            border: none; color: #222; padding: 16px 36px;
-            font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 30px; width: 100%;
-        }
-        button.reset-btn {
-            background: transparent; border: 1px solid #666; color: #999;
-            padding: 10px 20px; font-size: 14px; cursor: pointer; border-radius: 30px;
-        }
+        button.action-btn { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); border: none; color: #222; padding: 15px 35px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 30px; width: 100%; }
+        button.reset-btn { background: transparent; border: 1px solid #444; color: #777; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 30px; }
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
-        <button id="startButton">Enter the Garden</button>
+        <button id="startButton">Begin the Dance</button>
         <div id="uiLayer">
-            <div id="levelDisplay" style="font-size: 20px; color: #ffd700;">Cycle 1: Awakening</div>
-            <div id="scoreDisplay" style="font-size: 14px; opacity: 0.7;">Energy: 0</div>
+            <div id="levelDisplay" style="font-size: 18px; color: #ffd700; letter-spacing: 1px;">Cycle 1: Awakening</div>
+            <div id="scoreDisplay" style="font-size: 12px; opacity: 0.6; margin-top: 5px;">Energy: 0</div>
         </div>
         <div id="overlay">
-            <div id="overlayIcon" style="font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 10px white);">🌱</div>
-            <p id="overlayText" style="font-size: 19px; line-height: 1.6; font-style: italic;">Quote</p>
-            <span id="overlayAuthor" style="color: #ffd700; display: block; margin-top: 10px;">- Author</span>
+            <div id="overlayIcon" style="font-size: 70px; margin-bottom: 20px; filter: drop-shadow(0 0 10px white);">🌱</div>
+            <p id="overlayText" style="font-size: 18px; line-height: 1.6; font-style: italic;">Quote</p>
+            <span id="overlayAuthor" style="color: #ffd700; display: block; margin-top: 10px; font-size: 14px;">- Author</span>
             <div class="btn-group">
                 <button id="btnPrimary" class="action-btn" onclick="handlePrimaryBtn()">Absorb Wisdom</button>
-                <button id="btnSecondary" class="reset-btn" onclick="handleSecondaryBtn()" style="display:none;">Return to Roots</button>
+                <button id="btnSecondary" class="reset-btn" onclick="handleSecondaryBtn()" style="display:none;">Return to Roots (Level 1)</button>
             </div>
         </div>
     </div>
@@ -101,18 +39,19 @@
     const GRID_SIZE = 20;
     const CHAKRA_COLORS = ["#ff7675", "#fab1a0", "#ffeaa7", "#55efc4", "#74b9ff", "#a29bfe", "#dfe6e9"];
     const LORE_DB = [
-        {level: 1, icon: "🐢", text: "Treat the earth well: it was not given to you by your parents, it was loaned to you by your children.", author: "Native American Proverb"},
-        {level: 1, icon: "🌲", text: "Adopt the pace of nature: her secret is patience.", author: "Ralph Waldo Emerson"},
-        {level: 2, icon: "🌊", text: "Water is the softest thing, yet it can penetrate mountains. This shows the power of persistence.", author: "Lao Tzu"},
-        {level: 2, icon: "💧", text: "I am a hole in a flute that the Christ's breath moves through — listen to this music.", author: "Hafiz"},
-        {level: 3, icon: "🔥", text: "The soul is dyed the color of its thoughts. Think only on those things that are in line with your principles.", author: "Marcus Aurelius"},
-        {level: 4, icon: "💚", text: "In the garden of the heart, plant only the flowers of love.", author: "Sufi Wisdom"},
-        {level: 5, icon: "🦋", text: "Just when the caterpillar thought the world was over, it became a butterfly.", author: "Anonymous"},
-        {level: 6, icon: "🌌", text: "You are not a drop in the ocean. You are the entire ocean in a drop.", author: "Rumi"},
-        {level: 7, icon: "✨", text: "We are all just walking each other home.", author: "Ram Dass"}
+        {level: 1, icon: "🐢", text: "The Great Turtle carries the world. We must walk softly to respect her strength.", author: "Haudenosaunee Wisdom"},
+        {level: 1, icon: "🍂", text: "The forest is a social network. Trees talk to each other through the soil.", author: "Earth Wisdom"},
+        {level: 1, icon: "🌙", text: "The moon doesn't compete with the sun. It shines when it's time.", author: "Ancestral Whisper"},
+        {level: 2, icon: "🌊", text: "Be like water. It finds its way through every crack without force.", author: "Lao Tzu"},
+        {level: 2, icon: "💧", text: "A single drop of rain can start a flood of change.", author: "Nature's Truth"},
+        {level: 3, icon: "🔥", text: "The fire inside you is a piece of the sun. Keep it bright.", author: "Rumi"},
+        {level: 4, icon: "🦌", text: "To love a thing is to know its soul. Connect with the earth with your heart.", author: "Ancient Proverb"},
+        {level: 5, icon: "🗣️", text: "Your voice is a vibration. Speak beauty into the world.", author: "Truth Seeker"},
+        {level: 6, icon: "👁️", text: "The eyes of the soul see further than the eyes of the face.", author: "Spirit Guide"},
+        {level: 7, icon: "✨", text: "We are the universe experiencing itself in human form.", author: "Cosmic Insight"}
     ];
 
-    let canvas, ctx, cellSize, snake, direction, nextDirection, food, obstacles = [], particles = [], score = 0, level = 1, isPaused = false, isGameOver = false, isRunning = false, breath = 0;
+    let canvas, ctx, cellSize, snake, direction, nextDirection, food, obstacles = [], particles = [], score = 0, level = 1, isPaused = false, isGameOver = false, isRunning = false, time = 0;
 
     window.onload = () => {
         canvas = document.getElementById('gameCanvas');
@@ -125,18 +64,9 @@
         canvas.addEventListener('touchmove', touchM, {passive: false});
     };
 
-    function resize() {
-        let s = Math.min(window.innerWidth, window.innerHeight) - 40;
-        canvas.width = canvas.height = s;
-        cellSize = s / GRID_SIZE;
-    }
+    function resize() { let s = Math.min(window.innerWidth, window.innerHeight) - 40; canvas.width = canvas.height = s; cellSize = s / GRID_SIZE; }
 
-    function start() {
-        document.getElementById('startButton').style.display = 'none';
-        isRunning = true;
-        reset(1);
-        loop();
-    }
+    function start() { document.getElementById('startButton').style.display = 'none'; isRunning = true; reset(1); loop(); }
 
     function reset(l) {
         level = l; score = (l-1)*150; snake = [{x:10, y:10}]; direction = nextDirection = {x:1, y:0};
@@ -147,7 +77,7 @@
 
     function loop(t) {
         if (!isRunning) return;
-        let speed = 5 + (level * 0.4);
+        let speed = 4 + (level * 0.5); // Slower initial speed
         if (t - (loop.last || 0) > 1000/speed) {
             if (!isPaused && !isGameOver) update();
             loop.last = t;
@@ -166,14 +96,14 @@
             if(score > level*150) { level++; genObs(); }
             spawnF(); updateUI();
         } else snake.pop();
-        particles.push({x: h.x*cellSize+cellSize/2, y: h.y*cellSize+cellSize/2, l: 1, c: `hsl(${Math.random()*360},70%,70%)`});
+        particles.push({x: h.x*cellSize+cellSize/2, y: h.y*cellSize+cellSize/2, l: 1, c: `hsl(${Math.random()*360},60%,70%)`});
     }
 
     function col(p, a) { return a.some(i => i.x === p.x && i.y === p.y); }
 
     function spawnF() {
         do { food = {x: Math.floor(Math.random()*GRID_SIZE), y: Math.floor(Math.random()*GRID_SIZE)}; } while (col(food, snake) || col(food, obstacles));
-        food.data = Math.random() < 0.7 ? LORE_DB.find(l => l.level === level) || LORE_DB[0] : null;
+        food.data = Math.random() < 0.6 ? LORE_DB.find(l => l.level === level) || LORE_DB[0] : null;
     }
 
     function genObs() {
@@ -185,14 +115,14 @@
     }
 
     function draw() {
+        time += 0.02;
         ctx.fillStyle = "#050510"; ctx.fillRect(0,0,canvas.width,canvas.height);
-        breath += 0.03;
-        // Background
-        ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.strokeRect(cellSize, cellSize, canvas.width-cellSize*2, canvas.height-cellSize*2);
+        // Moon Background
+        ctx.fillStyle = "rgba(255,255,255,0.02)"; ctx.beginPath(); ctx.arc(canvas.width*0.8, canvas.height*0.2, 40, 0, Math.PI*2); ctx.fill();
         // Stones
         ctx.font = cellSize*0.8 + "px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         obstacles.forEach(o => {
-            ctx.shadowBlur = 10 + Math.sin(breath*3)*5; ctx.shadowColor = "red";
+            ctx.shadowBlur = 10 + Math.sin(time*3)*5; ctx.shadowColor = "rgba(255,100,100,0.5)";
             ctx.fillText("🪨", o.x*cellSize+cellSize/2, o.y*cellSize+cellSize/2);
         });
         // Food
@@ -205,15 +135,13 @@
             ctx.shadowBlur = 15; ctx.shadowColor = CHAKRA_COLORS[(level-1)%7];
             ctx.fillStyle = i === 0 ? "white" : CHAKRA_COLORS[(level-1)%7];
             ctx.beginPath(); ctx.arc(s.x*cellSize+cellSize/2, s.y*cellSize+cellSize/2, i===0?cellSize/2.2:cellSize/3.5, 0, Math.PI*2); ctx.fill();
-            if(i===0) { // Wings
-                ctx.strokeStyle = "white"; ctx.lineWidth = 1;
-                let f = Math.sin(breath*10)*5;
-                ctx.strokeRect(s.x*cellSize, s.y*cellSize+f, cellSize, 2);
+            if(i===0) { // Tiny Wings
+                ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.strokeRect(s.x*cellSize-5, s.y*cellSize+10+Math.sin(time*10)*5, cellSize+10, 2);
             }
         });
         // Particles
         particles.forEach((p, i) => {
-            p.l -= 0.02; if(p.l <= 0) particles.splice(i, 1);
+            p.l -= 0.015; if(p.l <= 0) { particles.splice(i, 1); return; }
             ctx.globalAlpha = p.l; ctx.fillStyle = p.c;
             ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
         });
@@ -221,29 +149,31 @@
     }
 
     function show(d) {
-        const o = document.getElementById('overlay');
         document.getElementById('overlayIcon').innerText = d.icon;
         document.getElementById('overlayText').innerText = d.text;
         document.getElementById('overlayAuthor').innerText = "- " + d.author;
         document.getElementById('btnPrimary').innerText = "Absorb Wisdom";
         document.getElementById('btnSecondary').style.display = "none";
-        o.style.display = "block";
+        document.getElementById('overlay').style.display = "block";
     }
 
     function gameOver() {
         isGameOver = true; isPaused = true;
-        const o = document.getElementById('overlay');
         document.getElementById('overlayIcon').innerText = "🌀";
-        document.getElementById('overlayText').innerText = "The cycle turns. Wisdom remains.";
+        document.getElementById('overlayText').innerText = "The rhythm continues. Rejoin the dance?";
         document.getElementById('overlayAuthor').innerText = "";
         document.getElementById('btnPrimary').innerText = "Reincarnate (Cycle " + level + ")";
         document.getElementById('btnSecondary').style.display = "block";
-        o.style.display = "block";
+        document.getElementById('overlay').style.display = "block";
     }
 
     function handlePrimaryBtn() { if(isGameOver) reset(level); else { isPaused = false; document.getElementById('overlay').style.display = 'none'; } }
     function handleSecondaryBtn() { reset(1); }
-    function updateUI() { document.getElementById('levelDisplay').innerText = "Cycle " + level; document.getElementById('scoreDisplay').innerText = "Energy: " + score; }
+    function updateUI() { 
+        const names = ["Awakening", "Flow", "Fire", "Heart", "Truth", "Vision", "Spirit"];
+        document.getElementById('levelDisplay').innerText = "Cycle " + level + ": " + (names[level-1] || "Eternal");
+        document.getElementById('scoreDisplay').innerText = "Energy: " + score; 
+    }
     function key(e) { if(e.code === "ArrowUp" && direction.y === 0) nextDirection = {x:0, y:-1}; if(e.code === "ArrowDown" && direction.y === 0) nextDirection = {x:0, y:1}; if(e.code === "ArrowLeft" && direction.x === 0) nextDirection = {x:-1, y:0}; if(e.code === "ArrowRight" && direction.x === 0) nextDirection = {x:1, y:0}; }
     let tsx, tsy;
     function touchS(e) { tsx = e.touches[0].clientX; tsy = e.touches[0].clientY; }
